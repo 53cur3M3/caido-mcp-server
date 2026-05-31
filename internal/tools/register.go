@@ -5,98 +5,113 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-func RegisterAll(server *mcp.Server, client *caido.Client) {
+// registerFunc registers a single tool on the server.
+type registerFunc func(server *mcp.Server, client *caido.Client)
+
+// allTools is the canonical list of tool registrations. Adding a tool here
+// keeps RegisterAll, the startup banner count, and schema_test in sync
+// automatically -- no separate count to update.
+var allTools = []registerFunc{
 	// HTTP History
-	RegisterListRequestsTool(server, client)
-	RegisterGetRequestTool(server, client)
+	RegisterListRequestsTool,
+	RegisterGetRequestTool,
 
 	// Automate (Fuzzing)
-	RegisterListAutomateSessionsTool(server, client)
-	RegisterGetAutomateSessionTool(server, client)
-	RegisterGetAutomateEntryTool(server, client)
-	RegisterAutomateTaskControlTool(server, client)
+	RegisterListAutomateSessionsTool,
+	RegisterGetAutomateSessionTool,
+	RegisterGetAutomateEntryTool,
+	RegisterAutomateTaskControlTool,
 
 	// Replay (Send Requests)
-	RegisterSendRequestTool(server, client)
-	RegisterBatchSendTool(server, client)
-	RegisterEditRequestTool(server, client)
-	RegisterExportCurlTool(server, client)
-	RegisterCreateReplaySessionTool(server, client)
-	RegisterListReplaySessionsTool(server, client)
-	RegisterDeleteReplaySessionsTool(server, client)
-	RegisterMoveReplaySessionTool(server, client)
-	RegisterGetReplayEntryTool(server, client)
-	RegisterClearSessionCookiesTool(server, client)
-	RegisterGetSessionCookiesTool(server, client)
+	RegisterSendRequestTool,
+	RegisterBatchSendTool,
+	RegisterEditRequestTool,
+	RegisterExportCurlTool,
+	RegisterCreateReplaySessionTool,
+	RegisterListReplaySessionsTool,
+	RegisterDeleteReplaySessionsTool,
+	RegisterMoveReplaySessionTool,
+	RegisterGetReplayEntryTool,
+	RegisterClearSessionCookiesTool,
+	RegisterGetSessionCookiesTool,
 
 	// Replay Collections
-	RegisterListReplayCollectionsTool(server, client)
-	RegisterCreateReplayCollectionTool(server, client)
-	RegisterRenameReplayCollectionTool(server, client)
-	RegisterDeleteReplayCollectionTool(server, client)
+	RegisterListReplayCollectionsTool,
+	RegisterCreateReplayCollectionTool,
+	RegisterRenameReplayCollectionTool,
+	RegisterDeleteReplayCollectionTool,
 
 	// Findings
-	RegisterListFindingsTool(server, client)
-	RegisterCreateFindingTool(server, client)
-	RegisterDeleteFindingsTool(server, client)
-	RegisterExportFindingsTool(server, client)
+	RegisterListFindingsTool,
+	RegisterCreateFindingTool,
+	RegisterDeleteFindingsTool,
+	RegisterExportFindingsTool,
 
 	// Sitemap
-	RegisterGetSitemapTool(server, client)
+	RegisterGetSitemapTool,
 
 	// Scopes
-	RegisterListScopesTool(server, client)
-	RegisterCreateScopeTool(server, client)
-	RegisterRenameScopeTool(server, client)
-	RegisterDeleteScopeTool(server, client)
+	RegisterListScopesTool,
+	RegisterCreateScopeTool,
+	RegisterRenameScopeTool,
+	RegisterDeleteScopeTool,
 
 	// Projects
-	RegisterListProjectsTool(server, client)
-	RegisterSelectProjectTool(server, client)
-	RegisterCreateProjectTool(server, client)
-	RegisterRenameProjectTool(server, client)
-	RegisterDeleteProjectTool(server, client)
+	RegisterListProjectsTool,
+	RegisterSelectProjectTool,
+	RegisterCreateProjectTool,
+	RegisterRenameProjectTool,
+	RegisterDeleteProjectTool,
 
 	// Workflows
-	RegisterListWorkflowsTool(server, client)
-	RegisterRunWorkflowTool(server, client)
-	RegisterToggleWorkflowTool(server, client)
+	RegisterListWorkflowsTool,
+	RegisterRunWorkflowTool,
+	RegisterToggleWorkflowTool,
 
 	// Environments
-	RegisterListEnvironmentsTool(server, client)
-	RegisterSelectEnvironmentTool(server, client)
-	RegisterCreateEnvironmentTool(server, client)
-	RegisterDeleteEnvironmentTool(server, client)
+	RegisterListEnvironmentsTool,
+	RegisterSelectEnvironmentTool,
+	RegisterCreateEnvironmentTool,
+	RegisterDeleteEnvironmentTool,
 
 	// Instance
-	RegisterGetInstanceTool(server, client)
+	RegisterGetInstanceTool,
 
 	// Intercept
-	RegisterInterceptStatusTool(server, client)
-	RegisterInterceptControlTool(server, client)
-	RegisterListInterceptEntriesTool(server, client)
-	RegisterForwardInterceptTool(server, client)
-	RegisterDropInterceptTool(server, client)
+	RegisterInterceptStatusTool,
+	RegisterInterceptControlTool,
+	RegisterListInterceptEntriesTool,
+	RegisterForwardInterceptTool,
+	RegisterDropInterceptTool,
 
 	// Tamper (Match & Replace)
-	RegisterListTamperRulesTool(server, client)
-	RegisterCreateTamperRuleTool(server, client)
-	RegisterUpdateTamperRuleTool(server, client)
-	RegisterToggleTamperRuleTool(server, client)
-	RegisterDeleteTamperRuleTool(server, client)
+	RegisterListTamperRulesTool,
+	RegisterCreateTamperRuleTool,
+	RegisterUpdateTamperRuleTool,
+	RegisterToggleTamperRuleTool,
+	RegisterDeleteTamperRuleTool,
 
 	// Filters
-	RegisterListFiltersTool(server, client)
-	RegisterCreateFilterTool(server, client)
-	RegisterDeleteFilterTool(server, client)
+	RegisterListFiltersTool,
+	RegisterCreateFilterTool,
+	RegisterDeleteFilterTool,
 
 	// Hosted Files
-	RegisterListHostedFilesTool(server, client)
+	RegisterListHostedFilesTool,
 
 	// Tasks
-	RegisterListTasksTool(server, client)
-	RegisterCancelTaskTool(server, client)
+	RegisterListTasksTool,
+	RegisterCancelTaskTool,
 
 	// Plugins
-	RegisterListPluginsTool(server, client)
+	RegisterListPluginsTool,
+}
+
+// RegisterAll registers every tool on the server and returns the number
+// of tools registered.
+func RegisterAll(server *mcp.Server, client *caido.Client) int {
+	for _, register := range allTools {
+		register(server, client)
+	}
+	return len(allTools)
 }

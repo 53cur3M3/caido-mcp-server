@@ -47,8 +47,10 @@ func runServe(cmd *cobra.Command, args []string) error {
 
 	var client *caido.Client
 
+	authMode := "OAuth (stored login)"
 	pat := os.Getenv("CAIDO_PAT")
 	if pat != "" {
+		authMode = "Personal Access Token (CAIDO_PAT)"
 		client, err = caido.NewClient(caido.Options{
 			URL:  caidoURL,
 			Auth: caido.PATAuth(pat),
@@ -83,16 +85,31 @@ func runServe(cmd *cobra.Command, args []string) error {
 		nil,
 	)
 
-	tools.RegisterAll(server, client)
+	toolCount := tools.RegisterAll(server, client)
 
 	// Resources (read-only data for agent context)
-	resources.RegisterAll(server, client)
+	resourceCount := resources.RegisterAll(server, client)
+
+	logStartup(caidoURL, authMode, toolCount, resourceCount)
 
 	if err := server.Run(ctx, &mcp.StdioTransport{}); err != nil {
 		return fmt.Errorf("server error: %w", err)
 	}
 
 	return nil
+}
+
+// logStartup prints a startup banner to stderr. It must never write to
+// stdout: stdout is the MCP JSON-RPC channel and any extra bytes there
+// would corrupt the protocol stream.
+func logStartup(caidoURL, authMode string, toolCount, resourceCount int) {
+	fmt.Fprintf(os.Stderr, "caido-mcp-server %s\n", version)
+	fmt.Fprintf(os.Stderr, "  Caido URL:  %s\n", caidoURL)
+	fmt.Fprintf(os.Stderr, "  Auth:       %s\n", authMode)
+	fmt.Fprintf(os.Stderr, "  Registered: %d tools, %d resources\n",
+		toolCount, resourceCount)
+	fmt.Fprintln(os.Stderr,
+		"  Transport:  stdio (ready, waiting for MCP client)")
 }
 
 // makeTokenRefresher creates the auto-refresh callback.

@@ -31,8 +31,9 @@ func TestAllToolsRegisterWithoutPanic(t *testing.T) {
 }
 
 func TestToolCount(t *testing.T) {
+	var expectedTools int
 	env := testutil.NewMCPTestEnv(t, func(s *mcp.Server, c *caido.Client) {
-		tools.RegisterAll(s, c)
+		expectedTools = tools.RegisterAll(s, c)
 	})
 
 	result, err := env.MCPClient.ListTools(context.Background(), nil)
@@ -40,8 +41,8 @@ func TestToolCount(t *testing.T) {
 		t.Fatalf("ListTools failed: %v", err)
 	}
 
-	const expectedTools = 60
 	if len(result.Tools) != expectedTools {
-		t.Fatalf("want %d tools registered, got %d", expectedTools, len(result.Tools))
+		t.Fatalf("RegisterAll reported %d tools but %d are exposed over MCP",
+			expectedTools, len(result.Tools))
 	}
 }
