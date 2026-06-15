@@ -1,0 +1,6 @@
+.git
+.agents
+.codex
+.claude
+dist
+Dockerfile

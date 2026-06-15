@@ -524,3 +524,44 @@ Built with [caido-community/sdk-go](https://github.com/caido-community/sdk-go) a
 ## License
 
 [MIT](LICENSE)
+
+## Dockerized Build
+
+You can build the project without installing Go locally by using Docker's local artifact output.
+
+Build all release binaries into `dist/`:
+
+```bash
+rm -rf dist
+docker build --target artifacts --output type=local,dest=dist --build-arg TOOL=all .
+```
+
+Build only one binary for a specific target:
+
+```bash
+# MCP server for linux/amd64
+rm -rf dist
+docker build --target artifacts --output type=local,dest=dist \
+  --build-arg TOOL=mcp \
+  --build-arg TARGETOS=linux \
+  --build-arg TARGETARCH=amd64 \
+  .
+
+# CLI for linux/amd64
+rm -rf dist
+docker build --target artifacts --output type=local,dest=dist \
+  --build-arg TOOL=cli \
+  --build-arg TARGETOS=linux \
+  --build-arg TARGETARCH=amd64 \
+  .
+```
+
+Set `VERSION` to stamp the MCP server binary:
+
+```bash
+rm -rf dist
+docker build --target artifacts --output type=local,dest=dist \
+  --build-arg TOOL=mcp \
+  --build-arg VERSION="$(git describe --tags --always --dirty)" \
+  .
+```

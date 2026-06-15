@@ -1,0 +1,5 @@
+# As claude user, must first authenticate:
+./caido-mcp-server-linux-amd64 login -u http://127.0.0.1:8081
+
+# Register caido MCP:
+claude mcp add caido -e CAIDO_URL=http://127.0.0.1:8081 -- /home/claude/caido-mcp-server-linux-amd64 serve
